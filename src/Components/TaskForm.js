@@ -1,14 +1,15 @@
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
-function TaskForm({ addTask, editTask, initialTask }) {
+function TaskForm({ addTask, editTask, initialTask, handleClose }) {
   const [task, setTask] = useState(
-    initialTask || { title: '', description: '', priority: 'low', completed: false }
+    initialTask || { title: '', description: '', priority: 'Low', completed: false }
   );
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setTask(initialTask || { title: '', description: '', priority: 'low', completed: false });
+    setTask(initialTask || { title: '', description: '', priority: 'Low', completed: false });
   }, [initialTask]);
 
   const handleSubmit = (e) => {
@@ -16,7 +17,7 @@ function TaskForm({ addTask, editTask, initialTask }) {
 
     // Validate that the title is not empty
     if (task.title.trim() === '') {
-      setError('Task title cannot be empty.');
+      setError('Please enter title');
       return;
     }
 
@@ -26,13 +27,17 @@ function TaskForm({ addTask, editTask, initialTask }) {
     if (!!initialTask) {
       // If in edit mode, call the editTask function
       editTask(initialTask.id, task);
+      toast.success('Task updated successfully');
+      handleClose();
     } else {
       // If in add mode, call the addTask function
       addTask({ ...task, id: Date.now() });
+      toast.success('Task created successfully');
+      handleClose();
     }
 
     // Reset the form and switch back to add mode
-    setTask({ title: '', description: '', priority: 'low', completed: false });
+    setTask({ title: '', description: '', priority: 'Low', completed: false });
   };
 
   return (
@@ -40,16 +45,17 @@ function TaskForm({ addTask, editTask, initialTask }) {
         <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <TextField
-                    label="Enter task title"
+                    label="Enter title"
                     variant="outlined"
                     size="small"
                     value={task.title}
                     onChange={(e) => setTask({ ...task, title: e.target.value })}
                 />
+                 {error && !task.title && <p className="error-message">{error}</p>}
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <TextField
-                    label="Enter task description"
+                    label="Enter description"
                     variant="outlined"
                     size="small"
                     value={task.description}
@@ -57,7 +63,7 @@ function TaskForm({ addTask, editTask, initialTask }) {
                 />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <FormControl sx={{ minWidth: 220 }} >
+                <FormControl className="select-field" >
                     <InputLabel id="demo-simple-select-helper-label">Priority</InputLabel>
                     <Select
                     labelId="demo-simple-select-helper-label"
@@ -67,15 +73,17 @@ function TaskForm({ addTask, editTask, initialTask }) {
                     label="Priority"
                     onChange={(e) => setTask({ ...task, priority: e.target.value })}
                     >
-                        <MenuItem value="high">High</MenuItem>
-                        <MenuItem value="medium">Medium</MenuItem>
-                        <MenuItem value="low">Low</MenuItem>
+                        <MenuItem value="High">High</MenuItem>
+                        <MenuItem value="Medium">Medium</MenuItem>
+                        <MenuItem value="Low">Low</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
         </Grid>
-        {error && <p className="error-message">{error}</p>}
-        <Button variant="contained" type="submit" sx={{ m: 1 }}>{!!initialTask ? 'Edit Task' : 'Add Task'}</Button>
+        <Box display="flex" justifyContent="flex-end" className="button">
+          <Button onClick={handleClose} sx={{ mr: 2 }}>Cancel</Button>
+          <Button variant="contained" type="submit">{!!initialTask ? 'Edit Task' : 'Add Task'}</Button>
+        </Box>
     </form>
   );
 }

@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from './TaskList';
 import TaskForm from './TaskForm';
-import { Card, Divider } from '@mui/material';
+import { Box, Button, Card, Dialog, DialogTitle } from '@mui/material';
 
 function TaskManagerApp() {
   const [tasks, setTasks] = useState([]);
   const [taskToEdit, setTaskToEdit] = useState(null);
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setTaskToEdit(null);
+  };
 
   // Load tasks from local storage when the app starts
   useEffect(() => {
@@ -38,16 +48,31 @@ function TaskManagerApp() {
 
   return (
     <div className="task-manager-app">
-      <Card sx={{ width: 500, padding: 4 }}>
-        <h1 className="App-header">Task Manager</h1>
-        <TaskForm addTask={addTask} editTask={editTask} initialTask={taskToEdit} />
-        <Divider sx={{ m: 2 }} />
-        <TaskList
-            tasks={tasks}
-            removeTask={removeTask}
-            setTaskToEdit={setTaskToEdit}
-        />
-      </Card>
+      <h1 className="App-header">Task Manager</h1>
+      <Box display="flex" justifyContent="flex-end" className="button">
+        <Button variant="contained" onClick={handleClickOpen}>
+          Create Task
+        </Button>
+      </Box>
+      <TaskList
+          tasks={tasks}
+          removeTask={removeTask}
+          setTaskToEdit={setTaskToEdit}
+          handleClickOpen={handleClickOpen}
+      />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Enter the task details
+        </DialogTitle>
+        <Card className="card">
+          <TaskForm addTask={addTask} editTask={editTask} initialTask={taskToEdit} handleClose={handleClose} />
+        </Card>
+      </Dialog>
     </div>
   );
 }
